@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Bots de IA (GEO) — permitidos para poder ser citados en respuestas de IA
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://ibermar.gnerai.com/sitemap.xml

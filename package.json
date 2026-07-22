@@ -1,0 +1,15 @@
+{
+  "name": "ibermar-motor-gallery",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Ibermar Motor Gallery — importación de coches de lujo y exóticos",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}

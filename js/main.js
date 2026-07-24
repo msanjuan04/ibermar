@@ -29,6 +29,25 @@
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
 
+  /* ---------- NAV ACTIVA (scroll spy) ---------- */
+  const navLinks = $$("#headerNav a[href^='#']");
+  if (navLinks.length) {
+    const map = new Map();
+    navLinks.forEach(a => {
+      const el = document.querySelector(a.getAttribute("href"));
+      if (el) map.set(el, a);
+    });
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(a => a.classList.remove("is-active"));
+        const link = map.get(e.target);
+        link && link.classList.add("is-active");
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    map.forEach((_, el) => spy.observe(el));
+  }
+
   /* ---------- THEME ---------- */
   const themeBtn = $("#themeBtn");
   themeBtn && themeBtn.addEventListener("click", () => {

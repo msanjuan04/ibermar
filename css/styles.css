@@ -517,6 +517,18 @@ body::after {
 /* ---------- REVEAL ANIM ---------- */
 .reveal { opacity: 0; transform: translateY(34px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
 .reveal.is-in { opacity: 1; transform: none; }
+/* revelado de titulares por líneas */
+.rlines { display: inline-block; }
+.rline { display: block; overflow: hidden; }
+.rline > span { display: inline-block; transform: translateY(105%); transition: transform .8s var(--ease-2); }
+.rline.is-in > span { transform: none; }
+.rlines .rline:nth-child(2) > span { transition-delay: .08s; }
+.rlines .rline:nth-child(3) > span { transition-delay: .16s; }
+
+/* transición entre páginas (solo opacidad para no afectar a la cabecera fija) */
+body { opacity: 1; transition: opacity .35s var(--ease); }
+body.page-leave { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { body { transition: none; } }
 
 /* ---------- SHOWROOM (editorial a sangre) ---------- */
 .showroom { position: relative; min-height: 86vh; display: flex; align-items: center; overflow: hidden; border-top: 1px solid var(--line); }
@@ -637,27 +649,36 @@ body::after {
 .request__form.is-sent { place-items: center; text-align: center; padding: 40px 0; }
 
 /* ---------- VEHICLE MODAL ---------- */
-.vmodal { position: fixed; inset: 0; z-index: 960; display: grid; place-items: center; padding: 24px; opacity: 0; visibility: hidden; transition: opacity .4s var(--ease), visibility .4s; }
+.vmodal { position: fixed; inset: 0; z-index: 960; opacity: 0; visibility: hidden; transition: opacity .4s var(--ease), visibility .4s; }
 .vmodal.is-open { opacity: 1; visibility: visible; }
-.vmodal__overlay { position: absolute; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
-.vmodal__panel { position: relative; width: min(540px, 94vw); max-height: 92vh; overflow: auto; background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px; transform: translateY(24px) scale(.98); opacity: 0; transition: transform .5s var(--ease), opacity .5s var(--ease); }
+.vmodal__overlay { position: absolute; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); }
+.vmodal__panel { position: absolute; inset: 0; width: 100%; height: 100%; overflow-y: auto; background: var(--bg); padding: 0 var(--pad) clamp(40px,6vw,72px); opacity: 0; transform: translateY(2%); transition: transform .55s var(--ease), opacity .5s var(--ease); }
 .vmodal.is-open .vmodal__panel { transform: none; opacity: 1; }
-.vmodal__close { position: absolute; top: 14px; right: 14px; z-index: 3; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.5); border: 1px solid var(--line-2); color: #fff; font-size: 15px; backdrop-filter: blur(6px); }
-.vmodal__close:hover { background: var(--red); border-color: var(--red); }
-.vmodal__media { position: relative; aspect-ratio: 4 / 3; background: #0e0e10 center/cover no-repeat; }
+.vmodal__close { position: fixed; top: 22px; right: clamp(20px,5vw,90px); z-index: 5; width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.5); border: 1px solid var(--line-2); color: #fff; font-size: 16px; backdrop-filter: blur(6px); transition: background .3s, border-color .3s, transform .3s; }
+.vmodal__close:hover { background: var(--red); border-color: var(--red); transform: rotate(90deg); }
+.vmodal__media { position: relative; width: 100%; max-width: 1160px; margin: 0 auto; aspect-ratio: 16/9; background: #0e0e10 center/cover no-repeat; border-radius: 0 0 12px 12px; }
+.vmodal__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,10,11,.55), transparent 55%); border-radius: inherit; }
 .vmodal__badge { position: absolute; top: 16px; left: 16px; font-family: var(--ff-display); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; padding: 6px 12px; border-radius: 20px; background: var(--red); color: #fff; }
 .vmodal__badge:empty { display: none; }
-.vmodal__body { padding: clamp(24px,3vw,40px); display: flex; flex-direction: column; }
+.vmodal__body { width: 100%; max-width: 820px; margin: 0 auto; padding: clamp(26px,3vw,44px) 0 0; display: flex; flex-direction: column; }
 .vmodal__origin { font-family: var(--ff-display); letter-spacing: .2em; text-transform: uppercase; font-size: 11px; color: var(--gold-2); }
-.vmodal__name { font-family: var(--ff-display); font-weight: 600; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(22px,2.6vw,32px); margin: 8px 0 14px; }
-.vmodal__price { font-family: var(--ff-display); font-weight: 600; font-size: 26px; }
+.vmodal__name { font-family: var(--ff-display); font-weight: 600; text-transform: uppercase; letter-spacing: .02em; font-size: var(--fs-h3); margin: 8px 0 14px; }
+.vmodal__price { font-family: var(--ff-display); font-weight: 600; font-size: 28px; }
 .vmodal__price small { display: block; font-family: var(--ff-body); font-weight: 400; font-size: 13px; color: var(--muted); margin-top: 2px; }
 .vmodal__specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 22px 0; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .vmodal__specs div { background: var(--surface); padding: 14px 16px; }
 .vmodal__specs span { display: block; font-family: var(--ff-display); letter-spacing: .12em; text-transform: uppercase; font-size: 9.5px; color: var(--muted); margin-bottom: 5px; }
 .vmodal__specs strong { font-family: var(--ff-display); font-weight: 600; font-size: 18px; }
 .vmodal__note { color: var(--muted); font-size: 14px; font-weight: 300; margin: 0 0 22px; }
-.vmodal__actions { display: flex; gap: 12px; margin-top: auto; flex-wrap: wrap; }
+.vmodal__actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+
+/* tira de "más coches" a pie de ficha */
+.vmodal__strip { position: relative; width: 100%; max-width: 1160px; margin: clamp(40px,6vw,72px) auto 0; padding-top: 42px; border-top: 1px solid var(--line); display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, 1fr); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; }
+.vmodal__strip::before { content: "Más coches en stock"; position: absolute; transform: translateY(-46px); font-family: var(--ff-display); letter-spacing: .2em; text-transform: uppercase; font-size: 11px; color: var(--muted); }
+.vstrip { display: flex; flex-direction: column; scroll-snap-align: start; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; padding: 0; transition: border-color .3s, transform .3s; }
+.vstrip:hover { border-color: var(--line-2); transform: translateY(-4px); }
+.vstrip__img { display: block; width: 100%; aspect-ratio: 16/10; background: #111 center/cover no-repeat; filter: var(--grade); }
+.vstrip__t { display: block; padding: 12px 14px; font-family: var(--ff-display); font-weight: 500; text-transform: uppercase; letter-spacing: .02em; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 1080px) {

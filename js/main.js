@@ -259,6 +259,46 @@
   });
   $$(".reveal").forEach(el => io.observe(el));
 
+  /* ---------- REVELADO DE TITULARES POR LÍNEAS ---------- */
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    const titles = $$(".section-title, .showroom__title, .statement__title, .hero__headline, .cta__title, .request__title");
+    const lineIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        $$(".rline", e.target).forEach(l => l.classList.add("is-in"));
+        lineIO.unobserve(e.target);
+      });
+    }, { threshold: 0.3 });
+    titles.forEach(t => {
+      if (t.dataset.lines) return;
+      t.dataset.lines = "1";
+      const lines = t.innerHTML.split(/<br\s*\/?>/i);
+      t.innerHTML = `<span class="rlines">${lines.map(l => `<span class="rline"><span>${l}</span></span>`).join("")}</span>`;
+      lineIO.observe(t);
+    });
+  }
+
+  /* ---------- TRANSICIÓN ENTRE PÁGINAS ---------- */
+  if (!reduce) {
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || a.target === "_blank" || a.hasAttribute("download")) return;
+      // solo navegaciones internas de página completa (no anclas ni externos)
+      if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+      let url; try { url = new URL(href, location.href); } catch { return; }
+      if (url.origin !== location.origin) return;
+      if (url.pathname === location.pathname) return; // mismo documento (ancla)
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      document.body.classList.add("page-leave");
+      setTimeout(() => { window.location.href = url.href; }, 330);
+    });
+    window.addEventListener("pageshow", (e) => { if (e.persisted) document.body.classList.remove("page-leave"); });
+  }
+
   /* ---------- NEWSLETTER ---------- */
   const nl = $("#newsletter"), nlMsg = $("#newsletterMsg");
   nl && nl.addEventListener("submit", (e) => {
@@ -322,9 +362,9 @@
   });
 
   /* ---------- VEHICLE MODAL ---------- */
-  const vmodal = $("#vmodal"), vmMedia = $(".vmodal__media", vmodal), vmBadge = $("#vmBadge"),
+  const vmodal = $("#vmodal"), vmPanel = $(".vmodal__panel", vmodal), vmMedia = $(".vmodal__media", vmodal), vmBadge = $("#vmBadge"),
         vmOrigin = $("#vmOrigin"), vmName = $("#vmName"), vmPrice = $("#vmPrice"),
-        vmSpecs = $("#vmSpecs"), vmNote = $("#vmNote"), vmRequest = $("#vmRequest");
+        vmSpecs = $("#vmSpecs"), vmNote = $("#vmNote"), vmRequest = $("#vmRequest"), vmStrip = $("#vmStrip");
   const toneImg = { a: "car-296.jpg", b: "car-cullinan.jpg", c: "car-urus.jpg", d: "car-db12.jpg", e: "car-750s.jpg", f: "car-911.jpg" };
   let vmCurrent = null;
 
@@ -344,7 +384,16 @@
         <div><span>Kilómetros</span><strong>${v.km}</strong></div>`;
     } else { vmSpecs.style.display = "none"; }
     vmNote.textContent = v.note || `Importación con homologación y matriculación europea incluidas. Presupuesto cerrado y entrega puerta a puerta.`;
-    vmTrigger = document.activeElement;
+    if (vmStrip) {
+      const others = CARS.filter(c => c.name !== v.name).slice(0, 8);
+      vmStrip.innerHTML = others.map(c => `
+        <button class="vstrip" data-name="${c.name}">
+          <span class="vstrip__img" style="background-image:url('/images/${c.img}')"></span>
+          <span class="vstrip__t">${c.name.replace(/^\d{4}\s+/, "")}</span>
+        </button>`).join("");
+    }
+    if (vmPanel) vmPanel.scrollTop = 0;
+    vmTrigger = vmTrigger || document.activeElement;
     vmodal.classList.add("is-open");
     vmodal.setAttribute("aria-hidden", "false");
     document.documentElement.style.overflow = "hidden";
@@ -361,6 +410,12 @@
   }
   vmodal && vmodal.addEventListener("click", (e) => { if (e.target.hasAttribute("data-close")) closeVehicle(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeVehicle(); });
+  vmStrip && vmStrip.addEventListener("click", (e) => {
+    const b = e.target.closest(".vstrip");
+    if (!b) return;
+    const car = CARS.find(c => c.name === b.dataset.name);
+    if (car) openVehicle(car);
+  });
   vmRequest && vmRequest.addEventListener("click", () => {
     if (vmCurrent) {
       const m = $("#rf-model"); if (m) m.value = vmCurrent.name.replace(/^\d{4}\s+/, "");
